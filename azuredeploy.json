@@ -23,7 +23,7 @@
   },
   "variables": {
     "sku": "Free",
-    "omsLogAnalyticsAPIVersion": "2015-11-01-preview",
+    "omsLogAnalyticsAPIVersion": "2015-01-01-preview",
     "solutionname": "Azure Scheduler",
     "solutionpublisher": "stefanroth.net",
     "solutionversion": "1",
