@@ -5,6 +5,20 @@
     "workspace": {
       "type": "string",
       "defaultValue": "Azure Scheduler"
+    },
+
+    "azureAutomationAccountName": {
+
+      "type": "string",
+
+      "defaultValue": "AzureScheduler",
+
+      "metadata": {
+
+        "description": "Name of the Azure Automation Account"
+
+      }
+
     }
   },
   "variables": {
@@ -14,7 +28,11 @@
     "solutionpublisher": "stefanroth.net",
     "solutionversion": "1",
     "solutionauthor": "Stefan Roth",
-    "solutiondescription": "Azure Scheduler"
+    "solutiondescription": "Azure Scheduler",
+    "runbookname": "Get-SchedulerJob",
+    "scriptUri": "https://raw.githubusercontent.com/stefanrothnet/AzureScheduler/master/scripts/Get-SchedulerJob.ps1",
+    "automationVariableOMSID": "OMS Workspace ID",
+    "automationVariableOMSKey": "OMS Workspace Key"
   },
   "resources": [
     {
@@ -392,6 +410,131 @@
           }
         }
       ]
+    },
+    {
+
+      "name": "[parameters('azureAutomationAccountName')]",
+
+      "type": "Microsoft.Automation/automationAccounts",
+
+      "apiVersion": "[variables('omsLogAnalyticsAPIVersion')]",
+
+      "location": "[resourceGroup().location]",
+
+      "dependsOn": [ ],
+
+      "properties": {
+
+        "sku": {
+
+          "name": "[variables('sku')]"
+
+        }
+
+      },
+
+      "resources": [
+
+        {
+
+          "name": "[variables('automationVariableOMSID')]",
+
+          "type": "variables",
+
+          "apiVersion": "[variables('omsLogAnalyticsAPIVersion')]",
+
+          "dependsOn": [
+
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('azureAutomationAccountName'))]"
+
+          ],
+
+          "tags": { },
+
+          "properties": {
+
+            "type": "string",
+
+            "value": "[concat('\"',reference(resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspace')), variables('omsLogAnalyticsAPIVersion')).customerId,'\"')]",
+
+            "description": "OMS Workspace ID",
+
+            "isEncrypted": 0
+
+          }
+
+        },
+
+        {
+
+          "name": "[variables('automationVariableOMSKey')]",
+
+          "type": "variables",
+
+          "apiVersion": "[variables('omsLogAnalyticsAPIVersion')]",
+
+          "dependsOn": [
+
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('azureAutomationAccountName'))]"
+
+          ],
+
+          "tags": { },
+
+          "properties": {
+
+            "type": "string",
+
+            "value": "[concat('\"',listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspace')), variables('omsLogAnalyticsAPIVersion')).primarySharedKey,'\"')]",
+
+            "description": "OMS Workspace Key",
+
+            "isEncrypted": 1
+
+          }
+
+        },
+
+        {
+
+          "name": "[variables('runbookname')]",
+
+          "type": "runbooks",
+
+          "apiVersion": "[variables('omsLogAnalyticsAPIVersion')]",
+
+          "location": "[resourceGroup().location]",
+
+          "dependsOn": [
+
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('azureAutomationAccountName'))]"
+
+          ],
+
+          "properties": {
+
+            "runbookType": "PowerShell",
+
+            "logProgress": "false",
+
+            "logVerbose": "false",
+
+            "description": "Gathers Azure Scheduler job data and ingest it to OMS",
+
+            "publishContentLink": {
+
+              "uri": "[variables('scriptUri')]",
+
+              "version": "1.0.0.0"
+
+            }
+
+          }
+
+        }
+
+      ]
+
     },
     {
       "type": "Microsoft.OperationsManagement/solutions",
