@@ -1,0 +1,421 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspace": {
+      "type": "string",
+      "defaultValue": "Azure Scheduler"
+    }
+  },
+  "variables": {
+    "sku": "Free",
+    "omsLogAnalyticsAPIVersion": "2015-11-01-preview",
+    "solutionname": "Azure Scheduler",
+    "solutionpublisher": "stefanroth.net",
+    "solutionversion": "1",
+    "solutionauthor": "Stefan Roth",
+    "solutiondescription": "Azure Scheduler"
+  },
+  "resources": [
+    {
+      "apiVersion": "[variables('omsLogAnalyticsAPIVersion')]",
+      "name": "[parameters('workspace')]",
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "location": "[resourceGroup().location]",
+      "resources": [
+        {
+          "apiVersion": "[variables('omsLogAnalyticsAPIVersion')]",
+          "name": "[concat(parameters('workspace'), '/' ,variables('solutionname'))]",
+          "type": "Microsoft.OperationalInsights/workspaces/views",
+          "location": "[resourceGroup().location]",
+          "id": "[Concat(subscription().id, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.OperationalInsights/workspaces/', parameters('workspace'), '/views/', variables('solutionname'))]",
+          "dependson": [
+            "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspace'))]"
+          ],
+          "properties": {
+            "Id": "[variables('solutionname')]",
+            "Name": "[variables('solutionname')]",
+            "displayName": "[variables('solutionname')]",
+            "Description": "[variables('solutiondescription')]",
+            "Author": "[variables('solutionauthor')]",
+            "Source": "Local",
+            "Dashboard": [
+              {
+                "Id": "InformationBlade",
+                "Type": "Blade",
+                "Version": 0,
+                "Configuration": {
+                  "General": {
+                    "Title": "",
+                    "NewGroup": false,
+                    "Color": "#002050"
+                  },
+                  "Header": {
+                    "Image": "data:image/png;base64,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",
+                    "Label": "Azure Scheduler",
+                    "Link": {
+                      "Label": "More info",
+                      "Url": "https://azure.microsoft.com/en-us/documentation/articles/log-analytics-view-designer-parts/#information-part"
+                    }
+                  },
+                  "List": [
+                    {
+                      "Title": "Job and collection information",
+                      "Content": "#### Jobs\nShows information about healthy jobs and such having errors.\n\n#### Job Status\nOverview of the jobs and its different status like completed, faulted, disabled and enabled.\n\n#### Job Executions\nShows each distinct job and how many times it has been executed.\n\n#### Job Distributtion\nOverview of job collection count and count of jobs within the collection.\n\n#### Queries\nSome usefull search queries."
+                    }
+                  ]
+                }
+              },
+              {
+                "Id": "TwoNumberTileListBuilderBlade",
+                "Type": "Blade",
+                "Version": 0,
+                "Configuration": {
+                  "General": {
+                    "title": "Jobs",
+                    "newGroup": false,
+                    "icon": "",
+                    "useIcon": false
+                  },
+                  "Tile": {
+                    "Legend": "Jobs having errors",
+                    "Query": "Type=AzureScheduler_CL Failures_d != 0 AND Faults_d !=0 RunTime_t IN {Type=AzureScheduler_CL   | measure count() by RunTime_t | sort RunTime_t desc | top 1} | measure countdistinct(JobName_s) by JobName_s, Faults_d,Failures_d"
+                  },
+                  "SecondTile": {
+                    "Legend": "Jobs without errors",
+                    "Query": "Type=AzureScheduler_CL Failures_d = 0 AND Faults_d =0 RunTime_t IN {Type=AzureScheduler_CL   | measure count() by RunTime_t | sort RunTime_t desc | top 1} | measure countdistinct(JobName_s) by JobName_s, Faults_d,Failures_d"
+                  },
+                  "List": {
+                    "Query": "Type=AzureScheduler_CL Failures_d != 0 AND Faults_d !=0 RunTime_t IN {Type=AzureScheduler_CL   | measure count() by RunTime_t | sort RunTime_t desc | top 1} | measure countdistinct(JobName_s) by JobName_s, JobCollectionName_s",
+                    "HideGraph": true,
+                    "enableSparklines": false,
+                    "operation": "Sum",
+                    "ColumnsTitle": {
+                      "Name": "Job",
+                      "Value": "Count"
+                    },
+                    "Color": "#ba141a",
+                    "thresholds": {
+                      "isEnabled": true,
+                      "values": [
+                        {
+                          "name": "Normal",
+                          "threshold": "Default",
+                          "color": "#009e49",
+                          "isDefault": true
+                        },
+                        {
+                          "name": "Error",
+                          "threshold": "0",
+                          "color": "#ba141a",
+                          "isDefault": false
+                        },
+                        {
+                          "name": "Error",
+                          "threshold": "90",
+                          "color": "#ba141a",
+                          "isDefault": false
+                        }
+                      ]
+                    },
+                    "NameDSVSeparator": "",
+                    "NavigationQuery": "Type=AzureScheduler_CL {selected item} RunTime_t IN {Type=AzureScheduler_CL   | measure count() by RunTime_t | sort RunTime_t desc | top 1} "
+                  }
+                }
+              },
+              {
+                "Id": "SingleQueryDonutBuilderBladeV1",
+                "Type": "Blade",
+                "Version": 0,
+                "Configuration": {
+                  "General": {
+                    "title": "Job Status",
+                    "newGroup": false,
+                    "icon": "",
+                    "useIcon": false
+                  },
+                  "Header": {
+                    "Title": "Status",
+                    "Subtitle": ""
+                  },
+                  "Donut": {
+                    "Query": "Type=AzureScheduler_CL RunTime_t IN {Type=AzureScheduler_CL   | measure count() by RunTime_t | sort RunTime_t desc | top 1} | measure count() by Status_s",
+                    "CenterLegend": {
+                      "Text": "Total",
+                      "Operation": "Sum",
+                      "ArcsToSelect": [ ]
+                    },
+                    "Options": {
+                      "colors": [
+                        "#00188f",
+                        "#0072c6",
+                        "#00bcf2"
+                      ],
+                      "valueColorMapping": [
+                        {
+                          "value": "Disabled",
+                          "color": "#ba141a"
+                        },
+                        {
+                          "value": "Enabled",
+                          "color": "#bad80a"
+                        },
+                        {
+                          "value": "Faulted",
+                          "color": "#ff8c00"
+                        },
+                        {
+                          "value": "Completed",
+                          "color": "#007233"
+                        }
+                      ]
+                    }
+                  },
+                  "List": {
+                    "Query": "Type=AzureScheduler_CL RunTime_t IN {Type=AzureScheduler_CL   | measure count() by RunTime_t | sort RunTime_t desc | top 1} | measure count() by Status_s, JobName_s ",
+                    "HideGraph": true,
+                    "enableSparklines": false,
+                    "operation": "Summary",
+                    "ColumnsTitle": {
+                      "Name": "Status",
+                      "Value": "Count"
+                    },
+                    "Color": "#0072c6",
+                    "thresholds": {
+                      "isEnabled": false,
+                      "values": [
+                        {
+                          "name": "Normal",
+                          "threshold": "Default",
+                          "color": "#009e49",
+                          "isDefault": true
+                        },
+                        {
+                          "name": "Warning",
+                          "threshold": "60",
+                          "color": "#fcd116",
+                          "isDefault": false
+                        },
+                        {
+                          "name": "Error",
+                          "threshold": "90",
+                          "color": "#ba141a",
+                          "isDefault": false
+                        }
+                      ]
+                    },
+                    "NameDSVSeparator": "",
+                    "NavigationQuery": "Type=AzureScheduler_CL {selected item} RunTime_t IN {Type=AzureScheduler_CL   | measure count() by RunTime_t | sort RunTime_t desc | top 1} "
+                  }
+                }
+              },
+              {
+                "Id": "TwoTrendsAndListBuilderBlade",
+                "Type": "Blade",
+                "Version": 0,
+                "Configuration": {
+                  "General": {
+                    "title": "Job Executions",
+                    "newGroup": false,
+                    "icon": "",
+                    "useIcon": false
+                  },
+                  "Trend1": {
+                    "Legend": "Job Count",
+                    "LegendColor": "#00188f",
+                    "ChartQuery": "Type=AzureScheduler_CL RunTime_t IN {Type=AzureScheduler_CL   | measure count() by RunTime_t | sort RunTime_t desc | top 1} | measure countdistinct(JobName_s) by JobName_s",
+                    "Calculation": {
+                      "Operation": "Sum"
+                    }
+                  },
+                  "Trend2": {
+                    "Legend": "Executions",
+                    "LegendColor": "#0072c6",
+                    "ChartQuery": "Type=AzureScheduler_CL RunTime_t IN {Type=AzureScheduler_CL   | measure count() by RunTime_t | sort RunTime_t desc | top 1} | measure sum(Executions_d) by JobName_s",
+                    "Calculation": {
+                      "Operation": "Sum"
+                    }
+                  },
+                  "List": {
+                    "Query": "Type=AzureScheduler_CL RunTime_t IN {Type=AzureScheduler_CL   | measure count() by RunTime_t | sort RunTime_t desc | top 1} | measure sum(Executions_d) by JobName_s",
+                    "HideGraph": false,
+                    "enableSparklines": false,
+                    "operation": "Summary",
+                    "ColumnsTitle": {
+                      "Name": "Job",
+                      "Value": "Execution"
+                    },
+                    "Color": "#0072c6",
+                    "thresholds": {
+                      "isEnabled": false,
+                      "values": [
+                        {
+                          "name": "Normal",
+                          "threshold": "Default",
+                          "color": "#009e49",
+                          "isDefault": true
+                        },
+                        {
+                          "name": "Warning",
+                          "threshold": "60",
+                          "color": "#fcd116",
+                          "isDefault": false
+                        },
+                        {
+                          "name": "Error",
+                          "threshold": "90",
+                          "color": "#ba141a",
+                          "isDefault": false
+                        }
+                      ]
+                    },
+                    "NameDSVSeparator": "",
+                    "NavigationQuery": "Type=AzureScheduler_CL {selected item} RunTime_t IN {Type=AzureScheduler_CL   | measure count() by RunTime_t | sort RunTime_t desc | top 1} "
+                  }
+                }
+              },
+              {
+                "Id": "LineChartBuilderBlade",
+                "Type": "Blade",
+                "Version": 0,
+                "Configuration": {
+                  "General": {
+                    "title": "Job Distribution",
+                    "newGroup": false,
+                    "icon": "",
+                    "useIcon": false
+                  },
+                  "Header": {
+                    "Title": "Jobs / Collection",
+                    "Subtitle": ""
+                  },
+                  "LineChart": {
+                    "Query": "Type=AzureScheduler_CL   | measure countdistinct(JobName_s) by JobCollectionName_s | Display LineChart",
+                    "yAxis": {
+                      "isLogarithmic": false,
+                      "units": {
+                        "baseUnitType": "",
+                        "baseUnit": "",
+                        "displayUnit": ""
+                      },
+                      "customLabel": ""
+                    }
+                  },
+                  "List": {
+                    "Query": "Type=AzureScheduler_CL   | measure countdistinct(JobName_s) as JobCount by JobCollectionName_s",
+                    "HideGraph": false,
+                    "enableSparklines": false,
+                    "operation": "Summary",
+                    "ColumnsTitle": {
+                      "Name": "Collection",
+                      "Value": "Job Count"
+                    },
+                    "Color": "#0072c6",
+                    "thresholds": {
+                      "isEnabled": false,
+                      "values": [
+                        {
+                          "name": "Normal",
+                          "threshold": "Default",
+                          "color": "#009e49",
+                          "isDefault": true
+                        },
+                        {
+                          "name": "Warning",
+                          "threshold": "5",
+                          "color": "#fcd116",
+                          "isDefault": false
+                        },
+                        {
+                          "name": "Error",
+                          "threshold": "10",
+                          "color": "#ba141a",
+                          "isDefault": false
+                        }
+                      ]
+                    },
+                    "NameDSVSeparator": "",
+                    "NavigationQuery": "Type=AzureScheduler_CL {selected item} RunTime_t IN {Type=AzureScheduler_CL   | measure count() by RunTime_t | sort RunTime_t desc | top 1} "
+                  }
+                }
+              },
+              {
+                "Id": "NotableQueriesBuilderBlade",
+                "Type": "Blade",
+                "Version": 0,
+                "Configuration": {
+                  "General": {
+                    "title": "Queries",
+                    "newGroup": false,
+                    "preselectedFilters": "Type, Computer",
+                    "renderMode": "grid"
+                  },
+                  "queries": [
+                    {
+                      "query": "Type=AzureScheduler_CL RunTime_t IN {Type=AzureScheduler_CL   | measure count() by RunTime_t | sort RunTime_t desc | top 1}",
+                      "displayName": "Last data imported"
+                    },
+                    {
+                      "query": "Type=AzureScheduler_CL RunTime_t IN {Type=AzureScheduler_CL   | measure count() by RunTime_t | sort RunTime_t desc | top 1} | measure count() by JobName_s",
+                      "displayName": "All jobs by name"
+                    },
+                    {
+                      "query": "Type=AzureScheduler_CL RunTime_t IN {Type=AzureScheduler_CL   | measure count() by RunTime_t | sort RunTime_t desc | top 1} | measure count() by JobCollectionName_s",
+                      "displayName": "All collections by name"
+                    }
+                  ]
+                }
+              }
+            ],
+            "OverviewTile": {
+              "Id": "DoubleNumberBuilderTile",
+              "Type": "OverviewTile",
+              "Version": 0,
+              "Configuration": {
+                "TileOne": {
+                  "Legend": "Total Job Collections",
+                  "Query": "Type=AzureScheduler_CL RunTime_t IN {Type=AzureScheduler_CL   | measure count() by RunTime_t | sort RunTime_t desc | top 1} | measure countdistinct(JobCollectionName_s) by JobCollectionName_s"
+                },
+                "TileTwo": {
+                  "Legend": "Total Jobs",
+                  "Query": "Type=AzureScheduler_CL RunTime_t IN {Type=AzureScheduler_CL   | measure count() by RunTime_t | sort RunTime_t desc | top 1} | measure countdistinct(JobCollectionName_s) by JobName_s"
+                },
+                "Advanced": {
+                  "DataFlowVerification": {
+                    "Enabled": true,
+                    "Query": "Type=AzureScheduler_CL",
+                    "Message": "No data found. Make sure you run the data import script to collect job data from Azure Scheduler."
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.OperationsManagement/solutions",
+      "name": "[variables('solutionname')]",
+      "apiVersion": "[variables('omsLogAnalyticsAPIVersion')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspace'))]",
+        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspace'), '/views/', variables('solutionname'))]"
+      ],
+      "plan": {
+        "name": "[variables('solutionname')]",
+        "publisher": "[variables('solutionpublisher')]",
+        "promotionCode": "",
+        "product": "[concat('OMSGallery/', variables('solutionname'))]",
+        "Version": "[variables('solutionversion')]"
+      },
+      "properties": {
+        "workspaceResourceId": "[concat(resourceGroup().id, '/providers/Microsoft.OperationalInsights/workspaces/', parameters('workspace'))]",
+        "containedResources": [
+        ]
+      }
+    }
+  ],
+  "outputs": {
+  }
+}
