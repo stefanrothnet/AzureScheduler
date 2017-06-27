@@ -23,7 +23,7 @@
   },
   "variables": {
     "sku": "Free",
-    "omsLogAnalyticsAPIVersion": "2015-01-01-preview",
+    "omsLogAnalyticsAPIVersion": "2015-11-01-preview",
     "solutionname": "Azure Scheduler",
     "solutionpublisher": "stefanroth.net",
     "solutionversion": "1",
@@ -32,7 +32,8 @@
     "runbookname": "Get-SchedulerJob",
     "scriptUri": "https://raw.githubusercontent.com/stefanrothnet/AzureScheduler/master/scripts/Get-SchedulerJob.ps1",
     "automationVariableOMSID": "OMS Workspace ID",
-    "automationVariableOMSKey": "OMS Workspace Key"
+    "automationVariableOMSKey": "OMS Workspace Key",
+    "AutomationApiVersion": "2015-10-31"
   },
   "resources": [
     {
@@ -417,7 +418,7 @@
 
       "type": "Microsoft.Automation/automationAccounts",
 
-      "apiVersion": "[variables('omsLogAnalyticsAPIVersion')]",
+      "apiVersion": "[variables('AutomationApiVersion')]",
 
       "location": "[resourceGroup().location]",
 
@@ -441,7 +442,7 @@
 
           "type": "variables",
 
-          "apiVersion": "[variables('omsLogAnalyticsAPIVersion')]",
+          "apiVersion": "[variables('AutomationApiVersion')]",
 
           "dependsOn": [
 
@@ -471,7 +472,7 @@
 
           "type": "variables",
 
-          "apiVersion": "[variables('omsLogAnalyticsAPIVersion')]",
+          "apiVersion": "[variables('AutomationApiVersion')]",
 
           "dependsOn": [
 
@@ -501,7 +502,7 @@
 
           "type": "runbooks",
 
-          "apiVersion": "[variables('omsLogAnalyticsAPIVersion')]",
+          "apiVersion": "[variables('AutomationApiVersion')]",
 
           "location": "[resourceGroup().location]",
 
