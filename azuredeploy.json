@@ -1,63 +1,92 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
+   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+   "contentVersion": "1.0.0.0",
   "parameters": {
     "workspace": {
       "type": "string",
-      "defaultValue": "Azure Scheduler"
+      "defaultValue": "AzureScheduler"
     },
-
-    "azureAutomationAccountName": {
-
+    "automationAccountName": {
       "type": "string",
-
       "defaultValue": "AzureScheduler",
-
       "metadata": {
-
         "description": "Name of the Azure Automation Account"
-
       }
-
+    },
+    "userName": {
+      "type": "string",
+      "metadata": {
+        "description": "The username for the Azure Automation credential."
+      }
+    },
+    "password": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The password for the Azure Automation credential."
+      }
+    },
+    "scheduleLinkGuid": {
+      "type": "string",
+      "metadata": {
+        "description": "GUID for Azure Scheduler Link",
+        "control": "guid"
+      }
     }
   },
   "variables": {
     "sku": "Free",
-    "omsLogAnalyticsAPIVersion": "2015-11-01-preview",
-    "solutionname": "Azure Scheduler",
-    "solutionpublisher": "stefanroth.net",
-    "solutionversion": "1",
-    "solutionauthor": "Stefan Roth",
-    "solutiondescription": "Azure Scheduler",
-    "runbookname": "Get-SchedulerJob",
+    "omsAPIVersion": "2015-11-01-preview",
+    "solutionName": "Azure Scheduler",
+    "solutionPublisher": "stefanroth.net",
+    "solutionVersion": "1",
+    "solutionAuthor": "Stefan Roth",
+    "solutionDescription": "Azure Scheduler",
+    "runbookName": "Get-AzureSchedulerJob",
     "scriptUri": "https://raw.githubusercontent.com/stefanrothnet/AzureScheduler/master/scripts/Get-SchedulerJob.ps1",
     "automationVariableOMSID": "OMS Workspace ID",
     "automationVariableOMSKey": "OMS Workspace Key",
-    "AutomationApiVersion": "2015-10-31"
+    "subscription": "MVP Sponsorship",
+    "automationApiVersion": "2015-10-31",
+    "schedule": {
+      "name": "Azure Scheduler Solution - Hourly",
+      "description": "Schedule for Azure Scheduler script",
+      "startTime": "",
+      "expiryTime": "9999-12-31T23:59:59.9999999+00:00",
+      "isEnabled": "true",
+      "interval": "1",
+      "frequency": "hour",
+      "linkGuid": "[parameters('scheduleLinkGuid')]"
+    },
+    "omsIngestionModule": {
+      "name": "OMSIngestionAPI",
+      "Uri": "https://devopsgallerystorage.blob.core.windows.net/packages/omsingestionapi.1.3.0.nupkg"
+    },
+    "azureRmProfile": {
+      "name": "AzureRM.Profile",
+      "uri": "https://devopsgallerystorage.blob.core.windows.net/packages/azurerm.profile.3.1.0.nupkg"
+    },
+    "azureRmScheduler": {
+      "name": "AzureRM.Scheduler",
+      "uri": "https://devopsgallerystorage.blob.core.windows.net/packages/azurerm.scheduler.0.15.0.nupkg"
+    }
   },
   "resources": [
     {
-      "apiVersion": "[variables('omsLogAnalyticsAPIVersion')]",
-      "name": "[parameters('workspace')]",
-      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "[variables('omsAPIVersion')]",
       "location": "[resourceGroup().location]",
+      "name": "[parameters('workspace')]",
       "resources": [
         {
-          "apiVersion": "[variables('omsLogAnalyticsAPIVersion')]",
-          "name": "[concat(parameters('workspace'), '/' ,variables('solutionname'))]",
+          "apiVersion": "[variables('omsAPIVersion')]",
+          "name": "[concat(parameters('workspace'), '/' ,variables('solutionName'))]",
           "type": "Microsoft.OperationalInsights/workspaces/views",
           "location": "[resourceGroup().location]",
-          "id": "[Concat(subscription().id, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.OperationalInsights/workspaces/', parameters('workspace'), '/views/', variables('solutionname'))]",
+          "id": "[Concat(subscription().id, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.OperationalInsights/workspaces/', parameters('workspace'), '/views/', variables('solutionName'))]",
           "dependson": [
             "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspace'))]"
           ],
           "properties": {
-            "Id": "[variables('solutionname')]",
-            "Name": "[variables('solutionname')]",
-            "displayName": "[variables('solutionname')]",
-            "Description": "[variables('solutiondescription')]",
-            "Author": "[variables('solutionauthor')]",
-            "Source": "Local",
+            "Author": "[variables('solutionAuthor')]",
             "Dashboard": [
               {
                 "Id": "InformationBlade",
@@ -110,7 +139,7 @@
                     "enableSparklines": false,
                     "operation": "Sum",
                     "ColumnsTitle": {
-                      "Name": "Job",
+                      "name": "Job",
                       "Value": "Count"
                     },
                     "Color": "#ba141a",
@@ -196,7 +225,7 @@
                     "enableSparklines": false,
                     "operation": "Summary",
                     "ColumnsTitle": {
-                      "Name": "Status",
+                      "name": "Status",
                       "Value": "Count"
                     },
                     "Color": "#0072c6",
@@ -261,7 +290,7 @@
                     "enableSparklines": false,
                     "operation": "Summary",
                     "ColumnsTitle": {
-                      "Name": "Job",
+                      "name": "Job",
                       "Value": "Execution"
                     },
                     "Color": "#0072c6",
@@ -326,7 +355,7 @@
                     "enableSparklines": false,
                     "operation": "Summary",
                     "ColumnsTitle": {
-                      "Name": "Collection",
+                      "name": "Collection",
                       "Value": "Job Count"
                     },
                     "Color": "#0072c6",
@@ -386,6 +415,10 @@
                 }
               }
             ],
+            "description": "[variables('solutionDescription')]",
+            "displayName": "[variables('solutionName')]",
+            "Id": "[variables('solutionName')]",
+            "name": "[variables('solutionName')]",
             "OverviewTile": {
               "Id": "DoubleNumberBuilderTile",
               "Type": "OverviewTile",
@@ -407,159 +440,207 @@
                   }
                 }
               }
-            }
+            },
+            "Source": "Local"
           }
         }
-      ]
+      ],
+      "type": "Microsoft.OperationalInsights/workspaces"
     },
     {
-
-      "name": "[parameters('azureAutomationAccountName')]",
-
-      "type": "Microsoft.Automation/automationAccounts",
-
-      "apiVersion": "[variables('AutomationApiVersion')]",
-
-      "location": "[resourceGroup().location]",
-
-      "dependsOn": [ ],
-
+      "name": "[concat(parameters('automationAccountName'), '/', variables('omsIngestionModule').name)]",
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "[variables('automationApiVersion')]",
+      "dependsOn": [
+        "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]"
+      ],
       "properties": {
+        "contentLink": {
+          "uri": "[variables('omsIngestionModule').Uri]"
+        }
+      }
+    },
+    {
+      "name": "[concat(parameters('automationAccountName'), '/', variables('azureRmProfile').name)]",
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "[variables('automationApiVersion')]",
+      "dependsOn": [
+        "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]"
+      ],
+      "properties": {
+        "contentLink": {
+          "uri": "[variables('azureRmProfile').Uri]"
+        }
+      }
+    },
+    {
+      "name": "[concat(parameters('automationAccountName'), '/', variables('azureRmScheduler').name)]",
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "[variables('automationApiVersion')]",
+      "dependsOn": [
+        "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]",
+        "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'), '/modules/', variables('azureRmProfile').name)]"
 
+      ],
+      "properties": {
+        "contentLink": {
+          "uri": "[variables('azureRmScheduler').Uri]"
+        }
+      }
+    },
+    {
+      "name": "[parameters('automationAccountName')]",
+      "type": "Microsoft.Automation/automationAccounts",
+      "apiVersion": "[variables('automationApiVersion')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [ ],
+      "properties": {
         "sku": {
-
           "name": "[variables('sku')]"
-
         }
-
       },
-
       "resources": [
-
         {
-
           "name": "[variables('automationVariableOMSID')]",
-
           "type": "variables",
-
-          "apiVersion": "[variables('AutomationApiVersion')]",
-
+          "apiVersion": "[variables('automationApiVersion')]",
           "dependsOn": [
-
-            "[concat('Microsoft.Automation/automationAccounts/', parameters('azureAutomationAccountName'))]"
-
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]"
           ],
-
           "tags": { },
-
           "properties": {
-
             "type": "string",
-
-            "value": "[concat('\"',reference(resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspace')), variables('omsLogAnalyticsAPIVersion')).customerId,'\"')]",
-
+            "value": "[concat('\"',reference(resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspace')), variables('omsAPIVersion')).customerId,'\"')]",
             "description": "OMS Workspace ID",
-
             "isEncrypted": 0
-
           }
-
         },
-
         {
-
           "name": "[variables('automationVariableOMSKey')]",
-
           "type": "variables",
-
-          "apiVersion": "[variables('AutomationApiVersion')]",
-
+          "apiVersion": "[variables('automationApiVersion')]",
           "dependsOn": [
-
-            "[concat('Microsoft.Automation/automationAccounts/', parameters('azureAutomationAccountName'))]"
-
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]"
           ],
-
           "tags": { },
-
           "properties": {
-
             "type": "string",
-
-            "value": "[concat('\"',listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspace')), variables('omsLogAnalyticsAPIVersion')).primarySharedKey,'\"')]",
-
+            "value": "[concat('\"',listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspace')), variables('omsAPIVersion')).primarySharedKey,'\"')]",
             "description": "OMS Workspace Key",
-
             "isEncrypted": 1
-
           }
-
         },
-
         {
-
-          "name": "[variables('runbookname')]",
-
-          "type": "runbooks",
-
-          "apiVersion": "[variables('AutomationApiVersion')]",
-
-          "location": "[resourceGroup().location]",
-
+          "name": "Subscription",
+          "type": "variables",
+          "apiVersion": "[variables('automationApiVersion')]",
           "dependsOn": [
-
-            "[concat('Microsoft.Automation/automationAccounts/', parameters('azureAutomationAccountName'))]"
-
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]"
           ],
-
+          "tags": { },
           "properties": {
-
-            "runbookType": "PowerShell",
-
-            "logProgress": "false",
-
-            "logVerbose": "false",
-
-            "description": "Gathers Azure Scheduler job data and ingest it to OMS",
-
-            "publishContentLink": {
-
-              "uri": "[variables('scriptUri')]",
-
-              "version": "1.0.0.0"
-
-            }
-
+            "type": "string",
+            "value": "[concat('\"',subscription().subscriptionId,'\"')]",
+            "description": "Subscription ID",
+            "isEncrypted": 0
           }
-
+        },
+        {
+          "name": "AzureSchedulerCredential",
+          "type": "credentials",
+          "apiVersion": "[variables('automationApiVersion')]",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]"
+          ],
+          "tags": { },
+          "properties": {
+            "userName": "[parameters('userName')]",
+            "password": "[parameters('password')]"
+          }
+        },
+        {
+          "name": "[variables('runbookName')]",
+          "type": "runbooks",
+          "apiVersion": "[variables('automationApiVersion')]",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]"
+          ],
+          "properties": {
+            "runbookType": "PowerShell",
+            "logProgress": "false",
+            "logVerbose": "false",
+            "description": "Gathers Azure Scheduler job data and ingest it to OMS",
+            "publishContentLink": {
+              "uri": "[variables('scriptUri')]",
+              "version": "1.0.0.0"
+            }
+          }
+        },
+        {
+          "name": "[concat(parameters('automationAccountName'), '/', variables('Schedule').name)]",
+          "type": "microsoft.automation/automationAccounts/schedules",
+          "apiVersion": "[variables('automationApiVersion')]",
+          "tags": { },
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]"
+          ],
+          "properties": {
+            "description": "[variables('schedule').description]",
+            "startTime": "[variables('schedule').startTime]",
+            "isEnabled": "[variables('schedule').isEnabled]",
+            "interval": "[variables('schedule').interval]",
+            "frequency": "[variables('schedule').frequency]"
+          }
+        },
+        {
+          "name": "[concat(parameters('automationAccountName'), '/', variables('schedule').linkGuid)]",
+          "type": "microsoft.automation/automationAccounts/jobSchedules",
+          "apiVersion": "[variables('automationApiVersion')]",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'))]",
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'),  '/runbooks/', variables('runbookName'))]",
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('automationAccountName'), '/schedules/', variables('schedule').name)]"
+          ],
+          "tags": { },
+          "properties": {
+            "schedule": {
+              "name": "[variables('schedule').name]"
+            },
+            "runbook": {
+              "name": "[variables('runbookName')]"
+            },
+            "parameters": {
+              "enabled": "true",
+              "scheduleName": "[variables('schedule').name]"
+            }
+          }
         }
-
       ]
-
     },
     {
       "type": "Microsoft.OperationsManagement/solutions",
-      "name": "[variables('solutionname')]",
-      "apiVersion": "[variables('omsLogAnalyticsAPIVersion')]",
+      "name": "[variables('solutionName')]",
+      "apiVersion": "[variables('omsAPIVersion')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
         "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspace'))]",
-        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspace'), '/views/', variables('solutionname'))]"
+        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspace'), '/views/', variables('solutionName'))]"
       ],
       "plan": {
-        "name": "[variables('solutionname')]",
-        "publisher": "[variables('solutionpublisher')]",
+        "name": "[variables('solutionName')]",
+        "publisher": "[variables('solutionPublisher')]",
         "promotionCode": "",
-        "product": "[concat('OMSGallery/', variables('solutionname'))]",
-        "Version": "[variables('solutionversion')]"
+        "product": "[concat('OMSGallery/', variables('solutionName'))]",
+        "Version": "[variables('solutionVersion')]"
       },
       "properties": {
         "workspaceResourceId": "[concat(resourceGroup().id, '/providers/Microsoft.OperationalInsights/workspaces/', parameters('workspace'))]",
-        "containedResources": [
-        ]
+        "containedResources": [ ]
       }
     }
   ],
-  "outputs": {
-  }
+   "outputs": {}
 }
