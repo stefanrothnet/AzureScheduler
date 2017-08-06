@@ -139,7 +139,7 @@
                     "enableSparklines": false,
                     "operation": "Sum",
                     "ColumnsTitle": {
-                      "name": "Job",
+                      "Name": "Job",
                       "Value": "Count"
                     },
                     "Color": "#ba141a",
@@ -220,15 +220,15 @@
                     }
                   },
                   "List": {
-                    "Query": "Type=AzureScheduler_CL RunTime_t IN {Type=AzureScheduler_CL   | measure count() by RunTime_t | sort RunTime_t desc | top 1} | measure count() by Status_s, JobName_s ",
+                    "Query": "Type=AzureScheduler_CL RunTime_t IN {Type=AzureScheduler_CL   | measure count() by RunTime_t | sort RunTime_t desc | top 1} | measure count(Status_s) by  JobName_s,Status_s",
                     "HideGraph": true,
                     "enableSparklines": false,
-                    "operation": "Summary",
                     "ColumnsTitle": {
-                      "name": "Status",
+                      "Name": "Job",
                       "Value": "Count"
                     },
                     "Color": "#0072c6",
+                    "operation": "Summary",
                     "thresholds": {
                       "isEnabled": false,
                       "values": [
@@ -290,7 +290,7 @@
                     "enableSparklines": false,
                     "operation": "Summary",
                     "ColumnsTitle": {
-                      "name": "Job",
+                      "Name": "Job",
                       "Value": "Execution"
                     },
                     "Color": "#0072c6",
@@ -355,7 +355,7 @@
                     "enableSparklines": false,
                     "operation": "Summary",
                     "ColumnsTitle": {
-                      "name": "Collection",
+                      "Name": "Collection",
                       "Value": "Job Count"
                     },
                     "Color": "#0072c6",
@@ -410,15 +410,19 @@
                     {
                       "query": "Type=AzureScheduler_CL RunTime_t IN {Type=AzureScheduler_CL   | measure count() by RunTime_t | sort RunTime_t desc | top 1} | measure count() by JobCollectionName_s",
                       "displayName": "All collections by name"
+                    },
+                    {
+                      "query": "Type=AzureScheduler_CL Failures_d = 0 AND Faults_d =0 RunTime_t IN {Type=AzureScheduler_CL   | measure count() by RunTime_t | sort RunTime_t desc | top 1} | measure countdistinct(JobName_s) by JobName_s, JobCollectionName_s",
+                      "displayName": "All jobs without errors"
+                    },
+                    {
+                      "query": "Type=AzureScheduler_CL Failures_d != 0 AND Faults_d !=0 RunTime_t IN {Type=AzureScheduler_CL   | measure count() by RunTime_t | sort RunTime_t desc | top 1} | measure countdistinct(JobName_s) by JobName_s, JobCollectionName_s",
+                      "displayName": "All jobs with errors"
                     }
                   ]
                 }
               }
             ],
-            "description": "[variables('solutionDescription')]",
-            "displayName": "[variables('solutionName')]",
-            "Id": "[variables('solutionName')]",
-            "name": "[variables('solutionName')]",
             "OverviewTile": {
               "Id": "DoubleNumberBuilderTile",
               "Type": "OverviewTile",
