@@ -1,0 +1,12 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters":{
+      "scheduleLinkGuid": {
+        "value": "5e58015b-7acc-4490-ba87-3a78b5f5d500"
+      },
+        "userName": {
+            "value": "user@azure.com"
+        }
+    }
+}
