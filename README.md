@@ -10,7 +10,8 @@ The solution will deploy the following parts:
 
 * Creates a resource group
 * Creates an Azure Automation account
-* Creates a Azure Automation schedule to run the runbook to collect the data. It runs every one hour starting after deployment.
+* Deploys the PowerShell runbook / script to collect Azure Scheduler data
+* Creates a Azure Automation schedule to run the runbook to collect the data. It starts every one hour starting after deployment.
 * Creates Azure Automation variables for OMS workspace and key
 * Creates an Azure Automation variable for the current subscription id
 * Creates an Azure Automation credential with username and password
